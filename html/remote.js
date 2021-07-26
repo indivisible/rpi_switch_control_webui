@@ -153,6 +153,12 @@ document.addEventListener('DOMContentLoaded', () => {
       text: scriptEditor.value
     });
   });
+  document.querySelector('#quick-pair').addEventListener('click', () => {
+    sendObj({
+      action: 'run-script',
+      text: 'press L\npress R\nwait 5000\nrelease_all\n'
+    });
+  });
   document.querySelector('#abort-script').addEventListener('click', () => {
     sendObj({action: 'abort-script'});
   });
