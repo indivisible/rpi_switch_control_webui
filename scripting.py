@@ -2,6 +2,8 @@
 
 from collections import defaultdict
 
+from controller_common import buttons as valid_buttons
+
 sample_script = '''
 macro exit:
     press B
@@ -31,14 +33,6 @@ release_all
 #repeat 0:
 #end
 '''
-
-# FIXME: duplicated constants!
-VALID_BUTTONS = set([
-    'A', 'B', 'X', 'Y',
-    'L', 'R', 'ZL', 'ZR',
-    '+', '-', 'Home', 'Capture',
-    'LS', 'RS'
-    ])
 
 
 class ScriptEOF(Exception):
@@ -74,7 +68,7 @@ class PressOp(SimpleOp):
 
     def init_args(self, args):
         (button,) = args
-        if button not in VALID_BUTTONS:
+        if button not in valid_buttons:
             raise ValueError(f'invalid button name {button}')
         return [button]
 

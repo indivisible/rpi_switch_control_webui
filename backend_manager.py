@@ -4,40 +4,11 @@ import asyncio
 import subprocess
 import logging
 
+from controller_common import button_mappings, stick_mappings
 from scripting import Script
 
 
 class Controller:
-    buttons = {
-            'A': 'a',
-            'B': 'b',
-            'X': 'x',
-            'Y': 'y',
-
-            '+': 'p',
-            '-': 'm',
-            'Home': 'h',
-            'Capture': 'c',
-
-            'R': 'r1',
-            'L': 'l1',
-            'ZR': 'r2',
-            'ZL': 'l2',
-
-            'LS': 'lp',
-            'RS': 'rp',
-
-            'Up': 'pu',
-            'Right': 'pr',
-            'Down': 'pd',
-            'Left': 'pl',
-            }
-
-    sticks = [
-            ['lx', 'ly'],
-            ['rx', 'ry']
-            ]
-
     def __init__(self, stream, manager):
         self.command_stream = stream
         self.manager = manager
@@ -48,13 +19,13 @@ class Controller:
         await self.command_stream.drain()
 
     async def press(self, button):
-        await self.__write_line(self.buttons[button], '1')
+        await self.__write_line(button_mappings[button], '1')
 
     async def release(self, button):
-        await self.__write_line(self.buttons[button], '0')
+        await self.__write_line(button_mappings[button], '0')
 
     async def release_all(self):
-        for name in self.buttons.keys():
+        for name in button_mappings.keys():
             await self.release(name)
 
     async def reset_inputs(self):
@@ -63,7 +34,7 @@ class Controller:
         await self.move_stick(1, 0, 0)
 
     async def move_stick(self, idx, x, y):
-        stick = self.sticks[idx]
+        stick = stick_mappings[idx]
         await self.__write_line(stick[0], str(x))
         await self.__write_line(stick[1], str(y))
 
