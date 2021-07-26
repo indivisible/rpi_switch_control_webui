@@ -1,0 +1,17 @@
+body {
+}
+
+main {
+  width: 30em;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.script-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+#script-editor {
+  height: 20em;
+}

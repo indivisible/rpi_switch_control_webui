@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Fake Procon</title>
+    <link rel="stylesheet" href="style.css"/>
+    <style type="text/css">
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="buttons">
+        <button id="test">test</button>
+        <button id="restart">Restart</button>
+        <button id="save-backup">Save scripts</button>
+      </div>
+      <div id="saved-scripts-panel">
+        <ul id="saved-scripts"></ul>
+      </div>
+      <div class="script-panel">
+        <input id="script-title" type="text">
+        <textarea id="script-editor"></textarea>
+        <div class="buttons">
+          <button id="save-script">Save</button>
+          <button id="run-script">Run!</button>
+          <button id="abort-script">Stop!</button>
+        </div>
+      </div>
+      <div class="messagebox">
+        <div id="status">N/A</div>
+        <pre id="messages"></pre>
+      </div>
+    </main>
+    <script src="remote.js"></script>
+  </body>
+</html>
