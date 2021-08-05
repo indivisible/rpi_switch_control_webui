@@ -44,10 +44,9 @@ class SocketConnection:
             return self.error(f'Unkown action f{action}')
         try:
             reply = await handler(**data)
-            if not reply:
-                return self.error(f'No reply from action {action}')
             return reply
         except Exception as e:
+            logging.exception(f'Error handling {action}:')
             return self.error(f'Error handling {action}: {e}')
 
     async def serve(self):
@@ -58,7 +57,8 @@ class SocketConnection:
                 logging.error(f'Error handling message {message}: ')
                 reply = self.error('Invalid message')
 
-            await self.send(reply)
+            if reply is not None:
+                await self.send(reply)
 
     async def handle_action_status(self):
         # return self.action('status', ok=(con is not None))
