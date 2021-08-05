@@ -12,6 +12,27 @@ class Controller:
     def __init__(self, stream, manager):
         self.command_stream = stream
         self.manager = manager
+        self.state_buttons = {}
+        self.state_axes = [[0, 0], [0, 0]]
+
+    async def set_state(self, new_state):
+        btn = self.state_buttons
+        for key, value in new_state['buttons'].items():
+            if btn.get(key) != value:
+                btn[key] = value
+                await self.set_button(key, value)
+        new_axes = new_state['sticks']
+        cur_axes = self.state_axes
+        # FIXME: hardcoded constants
+        if new_axes[0][0] != cur_axes[0][0]:
+            await self.__write_line('lx', str(new_axes[0][0]))
+        if new_axes[0][1] != cur_axes[0][1]:
+            await self.__write_line('ly', str(new_axes[0][1]))
+        if new_axes[1][0] != cur_axes[1][0]:
+            await self.__write_line('rx', str(new_axes[1][0]))
+        if new_axes[1][1] != cur_axes[1][1]:
+            await self.__write_line('ry', str(new_axes[1][1]))
+        self.state_axes = new_axes
 
     async def __write_line(self, *words):
         line = ' '.join(words) + '\n'
@@ -24,6 +45,9 @@ class Controller:
     async def release(self, button):
         await self.__write_line(button_mappings[button], '0')
 
+    async def set_button(self, button, value):
+        await self.__write_line(button_mappings[button], value and '1' or '0')
+
     async def release_all(self):
         for name in button_mappings.keys():
             await self.release(name)
@@ -32,6 +56,8 @@ class Controller:
         await self.release_all()
         await self.move_stick(0, 0, 0)
         await self.move_stick(1, 0, 0)
+        self.state_buttons = {}
+        self.state_axes = [[0, 0], [0, 0]]
 
     async def move_stick(self, idx, x, y):
         stick = stick_mappings[idx]
@@ -40,7 +66,9 @@ class Controller:
 
 
 class BackendManager:
-    abort_buttons = ['A', 'B', 'X', 'Y', '+', '-', 'Home']
+    abort_buttons = [
+        'A', 'B', 'X', 'Y', '+', '-', 'Home', 'Up', 'Right', 'Down', 'Left'
+    ]
 
     def __init__(self, command='/bin/cat', args=[]):
         self.command = command
@@ -58,8 +86,9 @@ class BackendManager:
         await self.socket_send_message(severity, message)
 
     async def start(self):
-        self.proc = await asyncio.create_subprocess_exec(
-            self.command, *self.command_args, stdin=subprocess.PIPE)
+        self.proc = await asyncio.create_subprocess_exec(self.command,
+                                                         *self.command_args,
+                                                         stdin=subprocess.PIPE)
         self.controller = Controller(self.proc.stdin, self)
 
     def start_script(self, script_text: str):
@@ -71,18 +100,20 @@ class BackendManager:
         self.script_abort.set()
         script_abort = asyncio.Event()
         self.script_abort = script_abort
+
+        await self.controller.reset_inputs()
         controller_ops = set([
-                'release_all',
-                'reset_inputs',
-                'press',
-                'release',
-                'move_stick',
-                ])
+            'release_all',
+            'reset_inputs',
+            'press',
+            'release',
+            'move_stick',
+        ])
 
         for op in script:
             if script_abort.is_set():
-                break
-            print(op)
+                await self.send_message('warning', 'Script aborted')
+                return
             if op.name == 'wait':
                 await asyncio.sleep(op.args[0] / 1000)
             elif op.name == 'message':
@@ -101,10 +132,11 @@ class BackendManager:
     async def manual_input(self, input_state):
         if not self.script_abort.is_set():
             for button in self.abort_buttons:
-                if input_state[button]:
+                if input_state['buttons'][button]:
                     self.script_abort.set()
+                    await self.controller.reset_inputs()
                     break
             else:
                 # no button pressed, macro can continue
                 return
-        # TODO
+        await self.controller.set_state(input_state)

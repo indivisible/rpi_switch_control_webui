@@ -83,6 +83,9 @@ class SocketConnection:
         Path('restart_app').touch()
         return self.error('Restarting app')
 
+    async def handle_action_input(self, state):
+        await self.backend.manual_input(state)
+
 
 class SocketServer:
     def __init__(self, backend):
