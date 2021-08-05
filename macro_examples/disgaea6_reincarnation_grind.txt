@@ -1,0 +1,177 @@
+# make sure that:
+#  - innocent farm is empty
+#  - no quests are completable
+#  - UNIQUE target char is in first slot
+#  - is in the team (for mana)
+#  - has enough mana to start the loop
+#  - autobattle group and DI is correct
+#  - unit has all evilties unlocked
+#  - unit is not in ability squad
+
+repeat 50: big iteration
+  call do_iteration
+end
+tap Home
+
+macro do_iteration:
+  call enter_dark_assembly
+  call pass_all_exp_bills
+  # "Call Assembly"
+  tap A 100 2000
+  call unique_reincarnate
+  # exit character selection
+  tap B 100 1000
+  # exit assembly
+  tap B
+  wait 8000
+  call enter_14_5
+  # stage is little under a minute normally
+  wait 45000
+  call exit_stage
+end
+
+macro exit_stage:
+  message exiting stage
+  # bonuses
+  tap A 100 3000
+  # exp & hl
+  tap A 100
+  # stage selection loads for some time
+  wait 10000
+  # exit stage selection
+  tap B 100 1000
+  tap B 100 3000
+  # in case innocents are born or something
+  repeat 5:
+    tap A 100 1000
+  end
+end
+
+macro enter_14_5:
+  message start the fight
+  call enter_dimension_guide
+  # reset cursor
+  tap ZL 3000
+  # go down 2 pages
+  tap ZR 100 200
+  tap ZR 100 200
+  # select peaceful world
+  repeat 3:
+    tap Up 100 200
+  end
+  tap A 100 1000
+  # select last level
+  tap Up 100 200
+  tap A 100 1000
+  # really enter
+  tap A
+end
+
+macro enter_dimension_guide:
+  press ZR
+  wait 100
+  move_stick 0 0.0 -0.900
+  wait 1000
+  tap A
+  reset_inputs
+  wait 2000
+end
+
+macro enter_dark_assembly:
+  press ZL
+  wait 100
+  move_stick 0 -0.700 -0.500
+  wait 1000
+  tap A
+  reset_inputs
+  wait 2000
+end
+
+macro pass_all_exp_bills:
+  repeat 4: passing bills
+    tap A 100 2200
+    call pass_one_exp_bill
+  end
+end
+
+macro pass_one_exp_bill:
+  # enter char menu
+  tap A 100 800
+  # select last exp bill
+  repeat 12:
+    tap Up 100 250
+  end
+  tap A
+  # wait for the assembly to load
+  wait 10000
+  tap X 100 500
+  press ZR
+  tap A
+  release ZR
+  # wait for vote to end
+  wait 15000
+  tap A 100 8000
+end
+
+macro generic_reincarnate:
+  # assumptions: GENERIC CHAR!
+  # - character is selected
+  # - character has all evilties
+  # - character is not in ability squad
+  # enter assembly with active unit
+  message reincarnate!
+  tap A 100 800
+  # select super reincarnation
+  repeat 4:
+    tap Down 100 200
+  end
+  tap A 100 700
+  # leave current class
+  tap A 100 300
+  # select genius
+  tap Up 100 200
+  tap A 100 200
+  # go through ability, voice, color
+  tap A 100 300
+  tap A 100 300
+  tap A 100 300
+  # really reincarnate? yes
+  tap Left 100 200
+  tap A 100 1000
+  # no more evilities => warning then accept extracts
+  tap A 100 500
+  tap A 100 1000
+  # exit selected character
+  tap B 100 500
+end
+# end macro generic_reincarnate
+
+macro unique_reincarnate:
+  # assumptions: UNIQUE CHAR!
+  # - character is selected
+  # - character has all evilties
+  # - character is not in ability squad
+  message reincarnate!
+  # enter assembly with active unit
+  tap A 100 800
+  # select super reincarnation
+  repeat 3:
+    tap Down 100 200
+  end
+  tap A 100 700
+  # select genius
+  tap Up 100 200
+  tap A 100 200
+  # go through ability, color
+  tap A 100 300
+  tap A 100 300
+  # really reincarnate? yes
+  tap Left 100 200
+  tap A 100 1000
+  # no more evilities => warning then accept extracts
+  tap A 100 500
+  tap A 100 1000
+  # exit selected character
+  tap B 100 500
+end
+# end macro unique_reincarnate
