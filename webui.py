@@ -33,7 +33,7 @@ class SocketConnection:
                 'message', severity=severity, message=message)
 
     def error(self, msg):
-        return self.action('error', message=msg)
+        return self.message('error', message=msg)
 
     async def handle_message(self, raw: str):
         data = json.loads(raw)
