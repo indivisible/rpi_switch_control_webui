@@ -136,8 +136,7 @@ handlers['ack'] = () => {}
 handlers['message'] = (msg) => { console.log(msg); }
 
 function connect(){
-  //const host = location.hostname || '127.0.0.1';
-  const host = '192.168.0.3'
+  const host = location.hostname || '127.0.0.1';
   const ws = new WebSocket(`ws://${host}:6789/`);
   socket = ws;
 
